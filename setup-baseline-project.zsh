@@ -1,23 +1,37 @@
 #!/bin/zsh
 
 printf "--------------------------------------------\n"
-printf "Ed's Baseline Hybris Project Setup Script\n"
+printf "Ed's SAP Commerce Accelerator-based Project Setup Script\n"
 printf "--------------------------------------------\n"
 
-# echo "> Enter SAP Commerce Zip filename:"
-# read commerceZipFilename
-# touch "THIS_PROJECT_IS_BASED_ON_"${commerceZipFilename%.zip}
+printf "Pre-requisites for using this script:\n"
+printf "- SAP Commerce (download from: https://launchpad.support.sap.com/#/softwarecenter/search/CX%2520COMM)\n"
+printf "- jEnv (https://www.jenv.be/)\n"
 
 printf "\n\n"
-printf "> Enter the full path to project:\n"
+printf "> Enter the full path to project (i.e. the unzipped SAP Commerce product):\n"
 read projectDir
 # e.g. 
-# /Users/i844958/Work/SAP/Projects/Apple/Apple_baseline_1905p10/CXCOMM190500P_14-70004140
-# /Users/i844958/Work/SAP/Projects/baseline-cx-2005/CXCOM200500P_0-70004955
+# /Users/i844958/Work/SAP/Projects/Apple/Apple_baseline_1905p10/CXCOMM190500P_14-70004140 <--- TEMP. REMOVE ME.
+# /Users/i844958/Work/SAP/Projects/baseline-cx-2005/CXCOM200500P_0-70004955 <--- TEMP. REMOVE ME.
 
-# Use the install.sh + recipe to generate the localextensions.xml
+# Set the Java version using jenv.
+# -----------------------------------------
 printf "\n\n"
-printf "> Enter the recipe to use (e.g. cx (2005+),b2b_acc_plus, b2c_acc_plus):\n"
+printf "> Enter the version of Java to use for this project.\n"
+printf "SAP Commerce 1905+ requires Java 11. Everything older requires Java 8.\n"
+printf "Choices are:\n"
+(cd ${projectDir}; jenv versions)
+read jenvVersionToUse
+(cd ${projectDir}; jenv local ${jenvVersionToUse})
+
+
+# Use SAP Installer Recipe to setup directories, configuration, etc.
+# -----------------------------------------
+printf "\n\n"
+printf "> Enter the SAP Installer Recipe to use:\n"
+${projectDir}/installer/install.sh --list-recipes
+printf "Recommended: v2005+ = cx, v1905 and previous = b2b_acc_plus or b2c_acc_plus."
 read recipe
 
 if [ ! -z "$recipe" ]; then
@@ -35,7 +49,8 @@ fi
 cp ${projectDir}/hybris/bin/custom/yb2bacceleratorstorefront/extensioninfo.xml ${projectDir}/hybris/bin/custom/yb2bacceleratorstorefront/extensioninfo.xml.ORiG
 sed -i '' 's/<meta key="modulegen-name" value="accelerator"\/>/<!-- <meta key="modulegen-name" value="accelerator"\/> -->/g' ${projectDir}/hybris/bin/custom/yb2bacceleratorstorefront/extensioninfo.xml
 
-# Generate the Accelerator extensions.
+# Generate the Accelerator extensions using modulegen.
+# -----------------------------------------
 printf "> Enter project name. Will be used for naming accelerator extensions.\n"
 read projectName
 
@@ -47,36 +62,43 @@ if [ ! -z "$projectName" ]; then
     ant -f ${projectDir}/hybris/bin/platform/build.xml modulegen -Dinput.module=accelerator -Dinput.name=${projectName} -Dinput.package=de.hybris.${projectName} -Dinput.template=develop
 fi
 
+# Configure localextensions.xml to (1) exclude Accelerator template extensions and (2) include generated Accelerator extensions.
+# -----------------------------------------
 printf "\n\n"
 printf "Configuring the project's localextensions.xml\n"
 printf "--------------------------------------------\n"
 
-# Comment out "yaccelerator" extensions from localextensions.xml
+# Comment out "yaccelerator" template extensions.
 cp ${projectDir}/hybris/config/localextensions.xml ${projectDir}/hybris/config/localextensions.xml.ORiG
+sed -i "" "s/<extension name='yb2bacceleratorstorefront' \/>/<!-- <extension name='yb2bacceleratorstorefront' \/> -->/g" ${projectDir}/hybris/config/localextensions.xml
 sed -i "" "s/<extension name='yacceleratorbackoffice' \/>/<!-- <extension name='yacceleratorbackoffice' \/> -->/g" ${projectDir}/hybris/config/localextensions.xml
 sed -i "" "s/<extension name='yacceleratorcore' \/>/<!-- <extension name='yacceleratorcore' \/> -->/g" ${projectDir}/hybris/config/localextensions.xml
 sed -i "" "s/<extension name='yacceleratorfacades' \/>/<!-- <extension name='yacceleratorfacades' \/> -->/g" ${projectDir}/hybris/config/localextensions.xml
 sed -i "" "s/<extension name='yacceleratorinitialdata' \/>/<!-- <extension name='yacceleratorinitialdata' \/> -->/g" ${projectDir}/hybris/config/localextensions.xml
 sed -i "" "s/<extension name='yacceleratorstorefront' \/>/<!-- <extension name='yacceleratorstorefront' \/> -->/g" ${projectDir}/hybris/config/localextensions.xml
 
-# Add the Accelerator extensions
-# Remove these outer elements...
+# Add the generated Accelerator extensions
+# First, remove the outer elements.
 sed -i "" "/<\/extensions>/d" ${projectDir}/hybris/config/localextensions.xml
 sed -i "" "/<\/hybrisconfig>/d" ${projectDir}/hybris/config/localextensions.xml
-
+# Second, add the generated Accelerators.
 echo "     <extension name='${projectName}backoffice' />" >> ${projectDir}/hybris/config/localextensions.xml
 echo "     <extension name='${projectName}initialdata' />" >> ${projectDir}/hybris/config/localextensions.xml
 echo "     <extension name='${projectName}test' />" >> ${projectDir}/hybris/config/localextensions.xml
 echo "     <extension name='${projectName}storefront' />" >> ${projectDir}/hybris/config/localextensions.xml
 echo "     <extension name='${projectName}facades' />" >> ${projectDir}/hybris/config/localextensions.xml
 echo "     <extension name='${projectName}core' />" >> ${projectDir}/hybris/config/localextensions.xml
-
-# Put these outer elements back...
+# Third, put the outer elements back.
 echo "  </extensions>" >> ${projectDir}/hybris/config/localextensions.xml
 echo "</hybrisconfig>" >> ${projectDir}/hybris/config/localextensions.xml
 
-# Edit localextensions.xml
-#  - add the generated extensions.
-#  - remove the "yaccelerator" extensions.
+# TODO: Run extgen, with 'ybackoffice' template?
 
-# Run extgen, with 'ybackoffice' template,
+# Initialize and build SAP Commerce.
+# -----------------------------------------
+printf "\n\n"
+printf "Built and initializing project..\n"
+printf "--------------------------------------------\n"
+. ${projectDir}/hybris/bin/platform/setantenv.sh
+ant -f ${projectDir}/hybris/bin/platform/build.xml clean all
+ant -f ${projectDir}/hybris/bin/platform/build.xml initialize
