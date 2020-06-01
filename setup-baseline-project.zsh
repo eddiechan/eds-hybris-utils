@@ -5,7 +5,7 @@ printf "Ed's SAP Commerce Accelerator-based Project Setup Script\n"
 printf "--------------------------------------------\n"
 
 printf "Pre-requisites for using this script:\n"
-printf "- SAP Commerce (download from: https://launchpad.support.sap.com/#/softwarecenter/search/CX%2520COMM)\n"
+printf "- SAP Commerce (download from: https://launchpad.support.sap.com/#/softwarecenter/search/CX)\n"
 printf "- jEnv (https://www.jenv.be/)\n"
 
 printf "\n\n"
@@ -18,10 +18,10 @@ read projectDir
 # Set the Java version using jenv.
 # -----------------------------------------
 printf "\n\n"
-printf "> Enter the version of Java to use for this project.\n"
-printf "SAP Commerce 1905+ requires Java 11. Everything older requires Java 8.\n"
+printf "SAP Commerce 1905+ requires Java 11. Older versions require Java 8.\n"
 printf "Choices are:\n"
 (cd ${projectDir}; jenv versions)
+printf "> Enter the version of Java to use for this project.\n"
 read jenvVersionToUse
 (cd ${projectDir}; jenv local ${jenvVersionToUse})
 
@@ -29,9 +29,9 @@ read jenvVersionToUse
 # Use SAP Installer Recipe to setup directories, configuration, etc.
 # -----------------------------------------
 printf "\n\n"
-printf "> Enter the SAP Installer Recipe to use:\n"
 ${projectDir}/installer/install.sh --list-recipes
-printf "Recommended: v2005+ = cx, v1905 and previous = b2b_acc_plus or b2c_acc_plus."
+printf "> Enter the SAP Installer Recipe to use:\n"
+printf "> Recommended recipe is 'cx' for SAP Commerce 2005+; 'b2b_acc_plus' or 'b2c_acc_plus' for older versions of SAP Commerce.\n"
 read recipe
 
 if [ ! -z "$recipe" ]; then
@@ -51,15 +51,20 @@ sed -i '' 's/<meta key="modulegen-name" value="accelerator"\/>/<!-- <meta key="m
 
 # Generate the Accelerator extensions using modulegen.
 # -----------------------------------------
-printf "> Enter project name. Will be used for naming accelerator extensions.\n"
+printf "\n\n"
+printf "> Enter a custom project name. E.g. 'training'. This will be used for naming the accelerator extensions.\n"
 read projectName
+
+printf "\n\n"
+printf "> Enter a custom package name. E.g. 'com.hybris.training'. This will be used in accelerator code.\n"
+read customPackageName
 
 if [ ! -z "$projectName" ]; then
     printf "\n\n"
     printf "Using modulegen to setup Accelerator extensions.\n"
     printf "--------------------------------------------\n"
     . ${projectDir}/hybris/bin/platform/setantenv.sh
-    ant -f ${projectDir}/hybris/bin/platform/build.xml modulegen -Dinput.module=accelerator -Dinput.name=${projectName} -Dinput.package=de.hybris.${projectName} -Dinput.template=develop
+    ant -f ${projectDir}/hybris/bin/platform/build.xml modulegen -Dinput.module=accelerator -Dinput.name=${projectName} -Dinput.package=${customPackageName} -Dinput.template=develop
 fi
 
 # Configure localextensions.xml to (1) exclude Accelerator template extensions and (2) include generated Accelerator extensions.
@@ -70,12 +75,12 @@ printf "--------------------------------------------\n"
 
 # Comment out "yaccelerator" template extensions.
 cp ${projectDir}/hybris/config/localextensions.xml ${projectDir}/hybris/config/localextensions.xml.ORiG
-sed -i "" "s/<extension name='yb2bacceleratorstorefront' \/>/<!-- <extension name='yb2bacceleratorstorefront' \/> -->/g" ${projectDir}/hybris/config/localextensions.xml
-sed -i "" "s/<extension name='yacceleratorbackoffice' \/>/<!-- <extension name='yacceleratorbackoffice' \/> -->/g" ${projectDir}/hybris/config/localextensions.xml
-sed -i "" "s/<extension name='yacceleratorcore' \/>/<!-- <extension name='yacceleratorcore' \/> -->/g" ${projectDir}/hybris/config/localextensions.xml
-sed -i "" "s/<extension name='yacceleratorfacades' \/>/<!-- <extension name='yacceleratorfacades' \/> -->/g" ${projectDir}/hybris/config/localextensions.xml
-sed -i "" "s/<extension name='yacceleratorinitialdata' \/>/<!-- <extension name='yacceleratorinitialdata' \/> -->/g" ${projectDir}/hybris/config/localextensions.xml
-sed -i "" "s/<extension name='yacceleratorstorefront' \/>/<!-- <extension name='yacceleratorstorefront' \/> -->/g" ${projectDir}/hybris/config/localextensions.xml
+sed -i "" "s/<extension name='yb2bacceleratorstorefront' \/>/<\!-- <extension name='yb2bacceleratorstorefront' \/> -->/g" ${projectDir}/hybris/config/localextensions.xml
+sed -i "" "s/<extension name='yacceleratorbackoffice' \/>/<\!-- <extension name='yacceleratorbackoffice' \/> -->/g" ${projectDir}/hybris/config/localextensions.xml
+sed -i "" "s/<extension name='yacceleratorcore' \/>/<\!-- <extension name='yacceleratorcore' \/> -->/g" ${projectDir}/hybris/config/localextensions.xml
+sed -i "" "s/<extension name='yacceleratorfacades' \/>/<\!-- <extension name='yacceleratorfacades' \/> -->/g" ${projectDir}/hybris/config/localextensions.xml
+sed -i "" "s/<extension name='yacceleratorinitialdata' \/>/<\!-- <extension name='yacceleratorinitialdata' \/> -->/g" ${projectDir}/hybris/config/localextensions.xml
+sed -i "" "s/<extension name='yacceleratorstorefront' \/>/<\!-- <extension name='yacceleratorstorefront' \/> -->/g" ${projectDir}/hybris/config/localextensions.xml
 
 # Add the generated Accelerator extensions
 # First, remove the outer elements.
@@ -97,7 +102,7 @@ echo "</hybrisconfig>" >> ${projectDir}/hybris/config/localextensions.xml
 # Initialize and build SAP Commerce.
 # -----------------------------------------
 printf "\n\n"
-printf "Built and initializing project..\n"
+printf "Build and initializing project..\n"
 printf "--------------------------------------------\n"
 . ${projectDir}/hybris/bin/platform/setantenv.sh
 ant -f ${projectDir}/hybris/bin/platform/build.xml clean all
