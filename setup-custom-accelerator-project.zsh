@@ -1,8 +1,10 @@
 #!/bin/zsh
 
-printf "--------------------------------------------\n"
-printf "Ed's SAP Commerce Accelerator-based Project Setup Script\n"
-printf "--------------------------------------------\n"
+timerStart=`date +%s`
+
+printf "--------------------------------------------------------\n"
+printf "Ed's SAP Commerce with custom Accelerator Project Setup Script\n"
+printf "--------------------------------------------------------\n"
 
 printf "Pre-requisites for using this script:\n"
 printf "- SAP Commerce (download from: https://launchpad.support.sap.com/#/softwarecenter/search/CX)\n"
@@ -11,9 +13,6 @@ printf "- jEnv (https://www.jenv.be/)\n"
 printf "\n\n"
 printf "> Enter the full path to project (i.e. the unzipped SAP Commerce product):\n"
 read projectDir
-# e.g. 
-# /Users/i844958/Work/SAP/Projects/Apple/Apple_baseline_1905p10/CXCOMM190500P_14-70004140 <--- TEMP. REMOVE ME.
-# /Users/i844958/Work/SAP/Projects/baseline-cx-2005/CXCOM200500P_0-70004955 <--- TEMP. REMOVE ME.
 
 # Set the Java version using jenv.
 # -----------------------------------------
@@ -37,14 +36,11 @@ read recipe
 if [ ! -z "$recipe" ]; then
     printf "\n\n"
     printf "Running install.sh with recipe [${recipe}]\n"
-    printf "--------------------------------------------\n"
+    printf "--------------------------------------------------------\n"
     ${projectDir}/installer/install.sh -r ${recipe} -A local_property:initialpassword.admin=nimda
 fi
 
-# The recipe may create the "yb2bacceleratorstorefront" extension.
-# This extension depends on "yacceleratorxxxx" extensions (e.g "yacceleratorcore"). However, in modulegen, we want to replace "yacceleratorxxx" 
-# with the custom extensions (e.g. "trainingcore"). Hence, to make it work, we have to comment out "yb2bacceleratorstorefront" from localextensions.xml 
-
+# The recipe may create the "yb2bacceleratorstorefront" extension. Don't use this extension as we will instead generate custom extensions with modulegen.
 # Comment out "<meta key="modulegen-name" value="accelerator"/>"" inside yb2bacceleratorstorefront's extensioninfo.xml file.
 cp ${projectDir}/hybris/bin/custom/yb2bacceleratorstorefront/extensioninfo.xml ${projectDir}/hybris/bin/custom/yb2bacceleratorstorefront/extensioninfo.xml.ORiG
 sed -i '' 's/<meta key="modulegen-name" value="accelerator"\/>/<!-- <meta key="modulegen-name" value="accelerator"\/> -->/g' ${projectDir}/hybris/bin/custom/yb2bacceleratorstorefront/extensioninfo.xml
@@ -62,7 +58,7 @@ read customPackageName
 if [ ! -z "$projectName" ]; then
     printf "\n\n"
     printf "Using modulegen to setup Accelerator extensions.\n"
-    printf "--------------------------------------------\n"
+    printf "--------------------------------------------------------\n"
     . ${projectDir}/hybris/bin/platform/setantenv.sh
     ant -f ${projectDir}/hybris/bin/platform/build.xml modulegen -Dinput.module=accelerator -Dinput.name=${projectName} -Dinput.package=${customPackageName} -Dinput.template=develop
 fi
@@ -71,7 +67,7 @@ fi
 # -----------------------------------------
 printf "\n\n"
 printf "Configuring the project's localextensions.xml\n"
-printf "--------------------------------------------\n"
+printf "--------------------------------------------------------\n"
 
 # Comment out "yaccelerator" template extensions.
 cp ${projectDir}/hybris/config/localextensions.xml ${projectDir}/hybris/config/localextensions.xml.ORiG
@@ -103,7 +99,16 @@ echo "</hybrisconfig>" >> ${projectDir}/hybris/config/localextensions.xml
 # -----------------------------------------
 printf "\n\n"
 printf "Build and initializing project..\n"
-printf "--------------------------------------------\n"
+printf "--------------------------------------------------------\n"
 . ${projectDir}/hybris/bin/platform/setantenv.sh
 ant -f ${projectDir}/hybris/bin/platform/build.xml clean all
 ant -f ${projectDir}/hybris/bin/platform/build.xml initialize
+
+# Output timer stats.
+# -----------------------------------------
+timerEnd=`date +%s`
+timerElapsedSeconds=$((timerEnd-timerStart))
+timerElapsedMinutes=$((timerElapsedSeconds/60))
+printf "--------------------------------------------------------\n"
+printf "This script took $timerElapsedMinutes minutes to run.\n"
+printf "bye.\n\n\n"
