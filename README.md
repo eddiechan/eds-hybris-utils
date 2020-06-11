@@ -1,2 +1,7 @@
 # eds-hybris-utils
-Useful SAP Commerce ("Hybris" 4ever) utilities.
+
+### What is this? 
+Useful Hybris (aka. SAP Commerce) utilities.
+
+### eds?
+I developed these utilities. I am Eddie Chan (eddie.c.chan@sap.com). 
