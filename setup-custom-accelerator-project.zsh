@@ -109,6 +109,7 @@ ant -f ${projectDir}/hybris/bin/platform/build.xml initialize
 timerEnd=`date +%s`
 timerElapsedSeconds=$((timerEnd-timerStart))
 timerElapsedMinutes=$((timerElapsedSeconds/60))
+printf "\n\n"
 printf "--------------------------------------------------------\n"
 printf "This script took $timerElapsedMinutes minutes to run.\n"
 printf "bye.\n\n\n"
