@@ -29,7 +29,8 @@ printf "--- Running Type System Validation...\n"
 
 # FIXME: the list of extensions that have items.xml files. this is manually defined. How to make it automatic?
 #### vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv ---- Change line below!
-declare -a arr=("globallinkpackage/globallink" "hpe/hpecore" "hpe/hpefulfilmentprocess" "hpe/hpeintegrations" "hpe/hpemulticountry" "mirakl/mirakladdon" "mirakl/miraklfulfilmentprocess" "mirakl/miraklservices" "multicountrypackage/multicountry" "multicountrypackage/contextualattributevalues" "multicountrypackage/multicountry" "arvatoAvalaraConnector") 
+# declare -a arr=("globallinkpackage/globallink" "hpe/hpecore" "hpe/hpefulfilmentprocess" "hpe/hpeintegrations" "hpe/hpemulticountry" "mirakl/mirakladdon" "mirakl/miraklfulfilmentprocess" "mirakl/miraklservices" "multicountrypackage/multicountry" "multicountrypackage/contextualattributevalues" "multicountrypackage/multicountry" "arvatoAvalaraConnector") 
+declare -a arr=("commonaddon" "cybersourceb2bpaymentaddon" "cybersourcepayment" "cybersourcepaymentaddon" "fbmbackoffice" "fbmcheckoutflowaddon" "fbmcore" "fbmcybersourceaddon" "fbmfacades" "fbminitialdata" "fbmordermanagement" "fbmshoppinglist" "fbmstorefront" "fbmwebservicesclient" "qspcommerceorgaddon") 
 #### ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ---- Change line above!
 
 for currentExtension in "${arr[@]}"
