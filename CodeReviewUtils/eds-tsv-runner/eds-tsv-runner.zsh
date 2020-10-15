@@ -29,8 +29,22 @@ printf "--- Running Type System Validation...\n"
 
 # FIXME: the list of extensions that have items.xml files. this is manually defined. How to make it automatic?
 #### vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv ---- Change line below!
+
+# HPE
 # declare -a arr=("globallinkpackage/globallink" "hpe/hpecore" "hpe/hpefulfilmentprocess" "hpe/hpeintegrations" "hpe/hpemulticountry" "mirakl/mirakladdon" "mirakl/miraklfulfilmentprocess" "mirakl/miraklservices" "multicountrypackage/multicountry" "multicountrypackage/contextualattributevalues" "multicountrypackage/multicountry" "arvatoAvalaraConnector") 
-declare -a arr=("commonaddon" "cybersourceb2bpaymentaddon" "cybersourcepayment" "cybersourcepaymentaddon" "fbmbackoffice" "fbmcheckoutflowaddon" "fbmcore" "fbmcybersourceaddon" "fbmfacades" "fbminitialdata" "fbmordermanagement" "fbmshoppinglist" "fbmstorefront" "fbmwebservicesclient" "qspcommerceorgaddon") 
+
+# Foundation Building Materials (FBM)
+# declare -a arr=("commonaddon" "cybersourceb2bpaymentaddon" "cybersourcepayment" "cybersourcepaymentaddon" "fbmbackoffice" "fbmcheckoutflowaddon" "fbmcore" "fbmcybersourceaddon" "fbmfacades" "fbminitialdata" "fbmordermanagement" "fbmshoppinglist" "fbmstorefront" "fbmwebservicesclient" "qspcommerceorgaddon") 
+
+# Monster Energy
+# declare -a arr=("dam/otmmaddon" "mec/mecasmaddon" "mec/mecb2baccaddon" "mec/meccore" "mec/mecsecureaddon") 
+
+# Global-e
+# declare -a arr=("globaleaddon" "globalebackoffice" "globalecore" "globaleendpoint" "globalefacades" "globalepromotions") 
+
+# GE-H
+declare -a arr=("healthcare/contractpayment" "healthcare/healthcareasmaddon" "healthcare/healthcareb2bpunchoutaddon" "healthcare/healthcarebtobbtgaddon" "healthcare/healthcarebtocbtgaddon" "healthcare/healthcarecore" "healthcare/healthcarecyberaddon" "healthcare/healthcareintegration" "healthcare/healthcarepimbackoffice" "healthcare/healthcarepromotionengine" "healthcare/healthcarereturnsaddon" "healthcare/healthcaresubscriptionfacade" "healthcare/healthcaresubscriptionservices" "healthcare/healthcareunionpaychinaaddon" "healthcare/healthcarewebservices" "btg" "ypslwjob" "ypsuniqueindexes") 
+
 #### ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ---- Change line above!
 
 for currentExtension in "${arr[@]}"
